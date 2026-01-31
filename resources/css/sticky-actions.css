@@ -1,0 +1,54 @@
+/**
+ * Filament Sticky Actions
+ * Makes the actions column sticky when scrolling horizontally
+ *
+ * Only applies when [data-sticky-actions] attribute is present on the table
+ */
+
+/* Header cell for actions column */
+.fi-ta[data-sticky-actions] .fi-ta-actions-header-cell {
+    position: sticky;
+    right: 0;
+    z-index: 11;
+    background-color: inherit;
+}
+
+/* Actions cell in table rows (AfterCells position - most common) */
+.fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child {
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    background-color: inherit;
+}
+
+/* Shadow indicator for sticky column */
+.fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.05));
+    pointer-events: none;
+}
+
+.dark .fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child::before {
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.15));
+}
+
+/* Header shadow */
+.fi-ta[data-sticky-actions] .fi-ta-actions-header-cell::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.05));
+    pointer-events: none;
+}
+
+.dark .fi-ta[data-sticky-actions] .fi-ta-actions-header-cell::before {
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.15));
+}

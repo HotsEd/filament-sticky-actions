@@ -1,0 +1,50 @@
+{
+    "name": "hotsed/filament-sticky-actions",
+    "description": "A Filament plugin to make table action columns sticky when scrolling horizontally",
+    "keywords": [
+        "laravel",
+        "filament",
+        "sticky",
+        "actions",
+        "table"
+    ],
+    "homepage": "https://github.com/hotsed/filament-sticky-actions",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "hotsed",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "filament/filament": "^4.0",
+        "spatie/laravel-package-tools": "^1.15"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0",
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hotsed\\StickyActions\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Hotsed\\StickyActions\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Hotsed\\StickyActions\\StickyActionsServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
