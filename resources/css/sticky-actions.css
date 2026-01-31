@@ -16,7 +16,7 @@
 
 .dark .fi-ta[data-sticky-actions] {
     --sticky-actions-bg: var(--gray-900);
-    --sticky-actions-bg-striped: color-mix(in oklab, white 5%, transparent);
+    --sticky-actions-bg-striped: color-mix(in oklab,var(--color-white)5%,transparent);
 }
 
 /* Header cell for actions column */
@@ -24,7 +24,7 @@
     position: sticky;
     right: 0;
     z-index: 11;
-    background-color: var(--sticky-actions-bg);
+    background-color: var(--sticky-actions-bg-striped);
 }
 
 /* Actions cell in table rows - base (non-striped rows) */
