@@ -1,7 +1,5 @@
 /**
- * Filament Sticky Actions - Scroll Shadow Handler
- *
- * Adds/removes shadow based on horizontal scroll position
+ * Filament Sticky Actions - Scroll Shadow Handler & Color Detection
  */
 document.addEventListener('DOMContentLoaded', function() {
     initStickyActions();
@@ -12,15 +10,23 @@ document.addEventListener('livewire:navigated', function() {
     initStickyActions();
 });
 
+// Re-init after Livewire updates
+document.addEventListener('livewire:updated', function() {
+    initStickyActions();
+});
+
 function initStickyActions() {
     const tables = document.querySelectorAll('.fi-ta[data-sticky-actions]');
 
     tables.forEach(function(table) {
-        const scrollContainer = table.querySelector('.fi-ta-ctn');
-        if (!scrollContainer) return;
+        const container = table.querySelector('.fi-ta-ctn');
+        if (!container) return;
+
+        // Detect background colors from the container
+        detectAndSetColors(table, container);
 
         // Find the actual scrollable element (the table wrapper)
-        const tableWrapper = scrollContainer.querySelector('table')?.parentElement;
+        const tableWrapper = container.querySelector('table')?.parentElement;
         if (!tableWrapper) return;
 
         // Check scroll and update shadow
@@ -48,8 +54,26 @@ function initStickyActions() {
 
         // Listen for resize
         window.addEventListener('resize', updateShadow, { passive: true });
-
-        // Re-check after Livewire updates
-        document.addEventListener('livewire:updated', updateShadow);
     });
+}
+
+function detectAndSetColors(table, container) {
+    // Get computed background color of the container
+    const containerStyle = window.getComputedStyle(container);
+    const bgColor = containerStyle.backgroundColor;
+
+    // Set the CSS variable on the table
+    if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+        table.style.setProperty('--sticky-actions-bg', bgColor);
+    }
+
+    // Try to detect striped row color by finding a striped row
+    const stripedRow = table.querySelector('.fi-ta-row.fi-striped > td');
+    if (stripedRow) {
+        const stripedStyle = window.getComputedStyle(stripedRow);
+        const stripedBg = stripedStyle.backgroundColor;
+        if (stripedBg && stripedBg !== 'rgba(0, 0, 0, 0)' && stripedBg !== 'transparent') {
+            table.style.setProperty('--sticky-actions-bg-striped', stripedBg);
+        }
+    }
 }

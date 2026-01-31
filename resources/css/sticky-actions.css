@@ -2,20 +2,29 @@
  * Filament Sticky Actions
  * Makes the actions column sticky when scrolling horizontally
  *
- * Only applies when [data-sticky-actions] attribute is present on the table
- * Uses Filament's native CSS variables (--gray-*) for theme compatibility
+ * Uses CSS custom properties that can be overridden by themes.
+ * Override these in your theme CSS if needed:
+ * --sticky-actions-bg
+ * --sticky-actions-bg-striped
  */
+
+/* Default values - can be overridden by themes */
+.fi-ta[data-sticky-actions] {
+    --sticky-actions-bg: var(--fi-body-bg, white);
+    --sticky-actions-bg-striped: var(--gray-50, rgb(249 250 251));
+}
+
+.dark .fi-ta[data-sticky-actions] {
+    --sticky-actions-bg: var(--gray-900);
+    --sticky-actions-bg-striped: color-mix(in oklab, white 5%, transparent);
+}
 
 /* Header cell for actions column */
 .fi-ta[data-sticky-actions] .fi-ta-actions-header-cell {
     position: sticky;
     right: 0;
     z-index: 11;
-    background-color: oklch(1 0 0); /* white */
-}
-
-.dark .fi-ta[data-sticky-actions] .fi-ta-actions-header-cell {
-    background-color: var(--gray-900);
+    background-color: var(--sticky-actions-bg);
 }
 
 /* Actions cell in table rows - base (non-striped rows) */
@@ -23,11 +32,7 @@
     position: sticky;
     right: 0;
     z-index: 10;
-    background-color: oklch(1 0 0); /* white */
-}
-
-.dark .fi-ta[data-sticky-actions] .fi-ta-row:not(.fi-striped) > td:has(.fi-ta-actions):last-child {
-    background-color: var(--gray-900);
+    background-color: var(--sticky-actions-bg);
 }
 
 /* Striped rows */
@@ -35,29 +40,17 @@
     position: sticky;
     right: 0;
     z-index: 10;
-    background-color: var(--gray-50);
-}
-
-.dark .fi-ta[data-sticky-actions] .fi-ta-row.fi-striped > td:has(.fi-ta-actions):last-child {
-    background-color: color-mix(in oklab, oklch(1 0 0) 5%, transparent);
+    background-color: var(--sticky-actions-bg-striped);
 }
 
 /* Selected rows override */
 .fi-ta[data-sticky-actions] .fi-ta-row.fi-selected > td:has(.fi-ta-actions):last-child {
-    background-color: var(--gray-50);
-}
-
-.dark .fi-ta[data-sticky-actions] .fi-ta-row.fi-selected > td:has(.fi-ta-actions):last-child {
-    background-color: color-mix(in oklab, oklch(1 0 0) 5%, transparent);
+    background-color: var(--sticky-actions-bg-striped);
 }
 
 /* Hover state for clickable rows */
 .fi-ta[data-sticky-actions] .fi-ta-row.fi-clickable:hover > td:has(.fi-ta-actions):last-child {
-    background-color: var(--gray-50);
-}
-
-.dark .fi-ta[data-sticky-actions] .fi-ta-row.fi-clickable:hover > td:has(.fi-ta-actions):last-child {
-    background-color: color-mix(in oklab, oklch(1 0 0) 5%, transparent);
+    background-color: var(--sticky-actions-bg-striped);
 }
 
 /* Shadow indicator - only shows when there's content to scroll */
