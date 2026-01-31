@@ -18,20 +18,23 @@
     background-color: var(--gray-900);
 }
 
-/* Actions cell in table rows */
-.fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child {
+/* Actions cell in table rows - base (non-striped rows) */
+.fi-ta[data-sticky-actions] .fi-ta-row:not(.fi-striped) > td:has(.fi-ta-actions):last-child {
     position: sticky;
     right: 0;
     z-index: 10;
     background-color: oklch(1 0 0); /* white */
 }
 
-.dark .fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child {
+.dark .fi-ta[data-sticky-actions] .fi-ta-row:not(.fi-striped) > td:has(.fi-ta-actions):last-child {
     background-color: var(--gray-900);
 }
 
 /* Striped rows */
 .fi-ta[data-sticky-actions] .fi-ta-row.fi-striped > td:has(.fi-ta-actions):last-child {
+    position: sticky;
+    right: 0;
+    z-index: 10;
     background-color: var(--gray-50);
 }
 
@@ -39,7 +42,7 @@
     background-color: color-mix(in oklab, oklch(1 0 0) 5%, transparent);
 }
 
-/* Selected rows */
+/* Selected rows override */
 .fi-ta[data-sticky-actions] .fi-ta-row.fi-selected > td:has(.fi-ta-actions):last-child {
     background-color: var(--gray-50);
 }
@@ -57,9 +60,9 @@
     background-color: color-mix(in oklab, oklch(1 0 0) 5%, transparent);
 }
 
-/* Shadow indicator for sticky column */
-.fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child::before,
-.fi-ta[data-sticky-actions] .fi-ta-actions-header-cell::before {
+/* Shadow indicator - only shows when there's content to scroll */
+.fi-ta[data-sticky-actions][data-sticky-shadow] .fi-ta-row > td:has(.fi-ta-actions):last-child::before,
+.fi-ta[data-sticky-actions][data-sticky-shadow] .fi-ta-actions-header-cell::before {
     content: '';
     position: absolute;
     left: -8px;
@@ -68,9 +71,10 @@
     width: 8px;
     background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.05));
     pointer-events: none;
+    transition: opacity 0.15s ease;
 }
 
-.dark .fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child::before,
-.dark .fi-ta[data-sticky-actions] .fi-ta-actions-header-cell::before {
+.dark .fi-ta[data-sticky-actions][data-sticky-shadow] .fi-ta-row > td:has(.fi-ta-actions):last-child::before,
+.dark .fi-ta[data-sticky-actions][data-sticky-shadow] .fi-ta-actions-header-cell::before {
     background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.15));
 }
