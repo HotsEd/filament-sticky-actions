@@ -24,7 +24,7 @@
     position: sticky;
     right: 0;
     z-index: 11;
-    background-color: var(--sticky-actions-bg-striped);
+    background-color: var(--sticky-actions-bg-header, var(--sticky-actions-bg));
 }
 
 /* Actions cell in table rows - base (non-striped rows) */

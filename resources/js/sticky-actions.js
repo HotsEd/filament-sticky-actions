@@ -22,7 +22,7 @@ function initStickyActions() {
         const container = table.querySelector('.fi-ta-ctn');
         if (!container) return;
 
-        // Detect background colors from the container
+        // Detect background colors from the actual elements
         detectAndSetColors(table, container);
 
         // Find the actual scrollable element (the table wrapper)
@@ -58,17 +58,26 @@ function initStickyActions() {
 }
 
 function detectAndSetColors(table, container) {
-    // Get computed background color of the container
+    // Get computed background color of the container (for regular rows)
     const containerStyle = window.getComputedStyle(container);
-    const bgColor = containerStyle.backgroundColor;
+    const containerBg = containerStyle.backgroundColor;
 
-    // Set the CSS variable on the table
-    if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
-        table.style.setProperty('--sticky-actions-bg', bgColor);
+    if (containerBg && containerBg !== 'rgba(0, 0, 0, 0)' && containerBg !== 'transparent') {
+        table.style.setProperty('--sticky-actions-bg', containerBg);
     }
 
-    // Try to detect striped row color by finding a striped row
-    const stripedRow = table.querySelector('.fi-ta-row.fi-striped > td');
+    // Detect header color from thead tr
+    const theadRow = table.querySelector('thead tr');
+    if (theadRow) {
+        const theadStyle = window.getComputedStyle(theadRow);
+        const theadBg = theadStyle.backgroundColor;
+        if (theadBg && theadBg !== 'rgba(0, 0, 0, 0)' && theadBg !== 'transparent') {
+            table.style.setProperty('--sticky-actions-bg-header', theadBg);
+        }
+    }
+
+    // Detect striped row color
+    const stripedRow = table.querySelector('.fi-ta-row.fi-striped');
     if (stripedRow) {
         const stripedStyle = window.getComputedStyle(stripedRow);
         const stripedBg = stripedStyle.backgroundColor;
