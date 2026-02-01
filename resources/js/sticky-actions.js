@@ -16,6 +16,14 @@
         setTimeout(detectColors, 100);
         setTimeout(detectColors, 300);
         setTimeout(detectColors, 600);
+        setTimeout(detectColors, 1000);
+        setTimeout(detectColors, 2000);
+
+        // Also use requestAnimationFrame for smoother detection
+        requestAnimationFrame(function() {
+            detectColors();
+            requestAnimationFrame(detectColors);
+        });
 
         // Watch for new tables being added to the DOM
         const bodyObserver = new MutationObserver(function(mutations) {
@@ -82,6 +90,28 @@
         init();
         detectColors();
         setTimeout(detectColors, 200);
+        setTimeout(detectColors, 500);
+    });
+
+    // Detect on first user interaction (scroll, click, mousemove)
+    let interactionDetected = false;
+    function onFirstInteraction() {
+        if (interactionDetected) return;
+        interactionDetected = true;
+        detectColors();
+        document.removeEventListener('scroll', onFirstInteraction);
+        document.removeEventListener('click', onFirstInteraction);
+        document.removeEventListener('mousemove', onFirstInteraction);
+    }
+    document.addEventListener('scroll', onFirstInteraction, { passive: true, once: true });
+    document.addEventListener('click', onFirstInteraction, { once: true });
+    document.addEventListener('mousemove', onFirstInteraction, { passive: true, once: true });
+
+    // DOMContentLoaded as separate listener (always register)
+    document.addEventListener('DOMContentLoaded', function() {
+        detectColors();
+        setTimeout(detectColors, 100);
+        setTimeout(detectColors, 500);
     });
 
     function clearColors() {
@@ -92,8 +122,22 @@
         });
     }
 
+    // Polling mechanism for initial load - check every 200ms for 10 seconds
+    let pollCount = 0;
+    const pollInterval = setInterval(function() {
+        pollCount++;
+        const tables = document.querySelectorAll('.fi-ta[data-sticky-actions]');
+        if (tables.length > 0) {
+            detectColors();
+        }
+        if (pollCount >= 50) { // 50 * 200ms = 10 seconds
+            clearInterval(pollInterval);
+        }
+    }, 200);
+
     function detectColors() {
         const tables = document.querySelectorAll('.fi-ta[data-sticky-actions]');
+        if (tables.length === 0) return;
 
         tables.forEach(function(table) {
             const container = table.querySelector('.fi-ta-ctn');
