@@ -69,6 +69,34 @@ function getBackgroundColor(element) {
     return null;
 }
 
+function parseColor(colorStr) {
+    if (!colorStr) return null;
+
+    // Handle rgba/rgb format: rgb(r, g, b) or rgba(r, g, b, a)
+    let match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (match) {
+        return {
+            r: parseInt(match[1]),
+            g: parseInt(match[2]),
+            b: parseInt(match[3]),
+            a: match[4] !== undefined ? parseFloat(match[4]) : 1
+        };
+    }
+
+    // Handle color(srgb r g b / a) format
+    match = colorStr.match(/color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\)/);
+    if (match) {
+        return {
+            r: Math.round(parseFloat(match[1]) * 255),
+            g: Math.round(parseFloat(match[2]) * 255),
+            b: Math.round(parseFloat(match[3]) * 255),
+            a: match[4] !== undefined ? parseFloat(match[4]) : 1
+        };
+    }
+
+    return null;
+}
+
 function getStripedBackgroundColor(stripedRow, containerBg) {
     const style = window.getComputedStyle(stripedRow);
     const bg = style.backgroundColor;
@@ -77,30 +105,20 @@ function getStripedBackgroundColor(stripedRow, containerBg) {
         return containerBg;
     }
 
-    // Parse the background color
-    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-    if (!match) return bg;
-
-    const r = parseInt(match[1]);
-    const g = parseInt(match[2]);
-    const b = parseInt(match[3]);
-    const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
+    const stripedColor = parseColor(bg);
+    if (!stripedColor) return bg;
 
     // If fully opaque, return as-is
-    if (a >= 0.99) return bg;
+    if (stripedColor.a >= 0.99) return bg;
 
     // Blend with container background
-    const containerMatch = containerBg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!containerMatch) return bg;
-
-    const cr = parseInt(containerMatch[1]);
-    const cg = parseInt(containerMatch[2]);
-    const cb = parseInt(containerMatch[3]);
+    const containerColor = parseColor(containerBg);
+    if (!containerColor) return bg;
 
     // Alpha blending
-    const blendedR = Math.round(r * a + cr * (1 - a));
-    const blendedG = Math.round(g * a + cg * (1 - a));
-    const blendedB = Math.round(b * a + cb * (1 - a));
+    const blendedR = Math.round(stripedColor.r * stripedColor.a + containerColor.r * (1 - stripedColor.a));
+    const blendedG = Math.round(stripedColor.g * stripedColor.a + containerColor.g * (1 - stripedColor.a));
+    const blendedB = Math.round(stripedColor.b * stripedColor.a + containerColor.b * (1 - stripedColor.a));
 
     return `rgb(${blendedR}, ${blendedG}, ${blendedB})`;
 }
