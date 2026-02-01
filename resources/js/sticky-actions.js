@@ -4,27 +4,61 @@
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initStickyActions);
+    document.addEventListener('DOMContentLoaded', init);
 } else {
+    init();
+}
+
+function init() {
+    // Run immediately
     initStickyActions();
+
+    // Also run after a short delay (for Livewire initial render)
+    setTimeout(initStickyActions, 100);
+    setTimeout(initStickyActions, 500);
+
+    // Watch for new tables being added to the DOM
+    const bodyObserver = new MutationObserver(function(mutations) {
+        let shouldInit = false;
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length > 0) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) {
+                        if (node.matches?.('[data-sticky-actions]') ||
+                            node.querySelector?.('[data-sticky-actions]')) {
+                            shouldInit = true;
+                        }
+                    }
+                });
+            }
+        });
+        if (shouldInit) {
+            initStickyActions();
+        }
+    });
+
+    bodyObserver.observe(document.body, { childList: true, subtree: true });
+
+    // Watch for theme changes (dark/light mode)
+    const themeObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                initStickyActions();
+            }
+        });
+    });
+
+    themeObserver.observe(document.documentElement, { attributes: true });
 }
 
 // Re-init on Livewire events
 document.addEventListener('livewire:navigated', initStickyActions);
+document.addEventListener('livewire:init', function() {
+    setTimeout(initStickyActions, 100);
+});
 document.addEventListener('livewire:updated', function() {
     setTimeout(initStickyActions, 50);
 });
-
-// Watch for theme changes (dark/light mode)
-const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-        if (mutation.attributeName === 'class') {
-            initStickyActions();
-        }
-    });
-});
-
-observer.observe(document.documentElement, { attributes: true });
 
 function initStickyActions() {
     const tables = document.querySelectorAll('.fi-ta[data-sticky-actions]');
@@ -48,8 +82,11 @@ function initStickyActions() {
             }
         }
 
-        // Setup scroll shadow
-        setupScrollShadow(table, container);
+        // Setup scroll shadow (only once per table)
+        if (!table.dataset.shadowInitialized) {
+            setupScrollShadow(table, container);
+            table.dataset.shadowInitialized = 'true';
+        }
     });
 }
 
