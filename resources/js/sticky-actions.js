@@ -5,12 +5,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initStickyActions();
 });
 
-// Re-init on Livewire navigation (for SPA-like behavior)
 document.addEventListener('livewire:navigated', function() {
     initStickyActions();
 });
 
-// Re-init after Livewire updates
 document.addEventListener('livewire:updated', function() {
     initStickyActions();
 });
@@ -22,22 +20,20 @@ function initStickyActions() {
         const container = table.querySelector('.fi-ta-ctn');
         if (!container) return;
 
-        // Detect background colors from the actual elements
-        detectAndSetColors(table, container);
+        // Detect background colors
+        detectAndSetColors(table);
 
-        // Find the actual scrollable element (the table wrapper)
+        // Find the scrollable element
         const tableWrapper = container.querySelector('table')?.parentElement;
         if (!tableWrapper) return;
 
-        // Check scroll and update shadow
         function updateShadow() {
             const scrollLeft = tableWrapper.scrollLeft;
             const scrollWidth = tableWrapper.scrollWidth;
             const clientWidth = tableWrapper.clientWidth;
 
-            // Show shadow if there's content scrolled to the left (not at the end)
             const hasScroll = scrollWidth > clientWidth;
-            const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1; // 1px tolerance
+            const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1;
 
             if (hasScroll && !isAtEnd) {
                 table.setAttribute('data-sticky-shadow', '');
@@ -46,43 +42,71 @@ function initStickyActions() {
             }
         }
 
-        // Initial check
         updateShadow();
-
-        // Listen for scroll
         tableWrapper.addEventListener('scroll', updateShadow, { passive: true });
-
-        // Listen for resize
         window.addEventListener('resize', updateShadow, { passive: true });
     });
 }
 
-function detectAndSetColors(table, container) {
-    // Get computed background color of the container (for regular rows)
-    const containerStyle = window.getComputedStyle(container);
-    const containerBg = containerStyle.backgroundColor;
+/**
+ * Get the actual background color by traversing up the DOM tree
+ */
+function getEffectiveBackgroundColor(element) {
+    let current = element;
 
-    if (containerBg && containerBg !== 'rgba(0, 0, 0, 0)' && containerBg !== 'transparent') {
-        table.style.setProperty('--sticky-actions-bg', containerBg);
+    while (current && current !== document.body) {
+        const style = window.getComputedStyle(current);
+        const bg = style.backgroundColor;
+
+        // Check if it's a real color (not transparent)
+        if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+            return bg;
+        }
+
+        current = current.parentElement;
     }
 
-    // Detect header color from thead tr
+    return null;
+}
+
+function detectAndSetColors(table) {
+    // 1. Detect header color - look at thead, then tr, then th
+    const thead = table.querySelector('thead');
     const theadRow = table.querySelector('thead tr');
-    if (theadRow) {
-        const theadStyle = window.getComputedStyle(theadRow);
-        const theadBg = theadStyle.backgroundColor;
-        if (theadBg && theadBg !== 'rgba(0, 0, 0, 0)' && theadBg !== 'transparent') {
-            table.style.setProperty('--sticky-actions-bg-header', theadBg);
-        }
+    const theadCell = table.querySelector('thead th');
+
+    let headerBg = null;
+    if (thead) headerBg = getEffectiveBackgroundColor(thead);
+    if (!headerBg && theadRow) headerBg = getEffectiveBackgroundColor(theadRow);
+    if (!headerBg && theadCell) headerBg = getEffectiveBackgroundColor(theadCell);
+
+    if (headerBg) {
+        table.style.setProperty('--sticky-actions-bg-header', headerBg);
     }
 
-    // Detect striped row color
+    // 2. Detect regular row color - from container or non-striped row
+    const container = table.querySelector('.fi-ta-ctn');
+    const regularRow = table.querySelector('.fi-ta-row:not(.fi-striped)');
+    const regularCell = table.querySelector('.fi-ta-row:not(.fi-striped) > td');
+
+    let regularBg = null;
+    if (regularCell) regularBg = getEffectiveBackgroundColor(regularCell);
+    if (!regularBg && regularRow) regularBg = getEffectiveBackgroundColor(regularRow);
+    if (!regularBg && container) regularBg = getEffectiveBackgroundColor(container);
+
+    if (regularBg) {
+        table.style.setProperty('--sticky-actions-bg', regularBg);
+    }
+
+    // 3. Detect striped row color
     const stripedRow = table.querySelector('.fi-ta-row.fi-striped');
-    if (stripedRow) {
-        const stripedStyle = window.getComputedStyle(stripedRow);
-        const stripedBg = stripedStyle.backgroundColor;
-        if (stripedBg && stripedBg !== 'rgba(0, 0, 0, 0)' && stripedBg !== 'transparent') {
-            table.style.setProperty('--sticky-actions-bg-striped', stripedBg);
-        }
+    const stripedCell = table.querySelector('.fi-ta-row.fi-striped > td');
+
+    let stripedBg = null;
+    if (stripedCell) stripedBg = getEffectiveBackgroundColor(stripedCell);
+    if (!stripedBg && stripedRow) stripedBg = getEffectiveBackgroundColor(stripedRow);
+
+    if (stripedBg) {
+        table.style.setProperty('--sticky-actions-bg-striped', stripedBg);
     }
 }
