@@ -5,9 +5,18 @@
  * Only applies when [data-sticky-actions] attribute is present on the table
  */
 
-/* Force rows to have background so inherit works on cells */
+/* Propagate background through the entire chain */
+.fi-ta[data-sticky-actions] .fi-ta-ctn > div,
+.fi-ta[data-sticky-actions] table,
+.fi-ta[data-sticky-actions] tbody,
+.fi-ta[data-sticky-actions] thead,
 .fi-ta[data-sticky-actions] .fi-ta-row:not(.fi-striped) {
-    background-color: inherit;
+    background: inherit;
+}
+
+/* Header row needs to propagate too */
+.fi-ta[data-sticky-actions] thead tr {
+    background: inherit;
 }
 
 /* Header cell for actions column */
@@ -15,7 +24,7 @@
     position: sticky;
     right: 0;
     z-index: 11;
-    background-color: inherit;
+    background: inherit;
 }
 
 /* Actions cell in table rows */
@@ -23,12 +32,12 @@
     position: sticky;
     right: 0;
     z-index: 10;
-    background-color: inherit;
+    background: inherit;
 }
 
-/* Shadow indicator */
-.fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child::before,
-.fi-ta[data-sticky-actions] .fi-ta-actions-header-cell::before {
+/* Shadow indicator - only shows when data-sticky-shadow is present */
+.fi-ta[data-sticky-actions][data-sticky-shadow] .fi-ta-row > td:has(.fi-ta-actions):last-child::before,
+.fi-ta[data-sticky-actions][data-sticky-shadow] .fi-ta-actions-header-cell::before {
     content: '';
     position: absolute;
     left: -8px;
@@ -39,7 +48,7 @@
     pointer-events: none;
 }
 
-.dark .fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child::before,
-.dark .fi-ta[data-sticky-actions] .fi-ta-actions-header-cell::before {
+.dark .fi-ta[data-sticky-actions][data-sticky-shadow] .fi-ta-row > td:has(.fi-ta-actions):last-child::before,
+.dark .fi-ta[data-sticky-actions][data-sticky-shadow] .fi-ta-actions-header-cell::before {
     background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.15));
 }
