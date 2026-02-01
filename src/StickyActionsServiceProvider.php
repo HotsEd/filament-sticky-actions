@@ -3,7 +3,6 @@
 namespace Hotsed\StickyActions;
 
 use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Table;
 use Spatie\LaravelPackageTools\Package;
@@ -22,7 +21,6 @@ class StickyActionsServiceProvider extends PackageServiceProvider
     {
         FilamentAsset::register([
             Css::make('filament-sticky-actions', __DIR__ . '/../resources/css/sticky-actions.css'),
-            Js::make('filament-sticky-actions', __DIR__ . '/../resources/js/sticky-actions.js'),
         ], package: 'hotsed/filament-sticky-actions');
 
         Table::macro('stickyActions', function (bool $condition = true): Table {
