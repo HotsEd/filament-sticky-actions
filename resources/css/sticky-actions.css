@@ -5,6 +5,11 @@
  * Only applies when [data-sticky-actions] attribute is present on the table
  */
 
+/* Force rows to have background so inherit works on cells */
+.fi-ta[data-sticky-actions] .fi-ta-row:not(.fi-striped) {
+    background-color: inherit;
+}
+
 /* Header cell for actions column */
 .fi-ta[data-sticky-actions] .fi-ta-actions-header-cell {
     position: sticky;
