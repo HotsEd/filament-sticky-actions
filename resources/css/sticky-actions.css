@@ -3,6 +3,7 @@
  * Makes the actions column sticky when scrolling horizontally
  *
  * Only applies when [data-sticky-actions] attribute is present on the table
+ * Colors are detected via JavaScript and set as CSS variables
  */
 
 /* Header cell for actions column - inherits from thead tr */
@@ -13,12 +14,21 @@
     background: inherit;
 }
 
-/* Actions cell in table rows - inherits from tr */
+/* Actions cell in table rows */
 .fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child {
     position: sticky;
     right: 0;
     z-index: 10;
-    background: inherit;
+}
+
+/* Non-striped rows: use detected container background */
+.fi-ta[data-sticky-actions] .fi-ta-row:not(.fi-striped) > td:has(.fi-ta-actions):last-child {
+    background-color: var(--fi-ta-bg);
+}
+
+/* Striped rows: use detected striped background */
+.fi-ta[data-sticky-actions] .fi-ta-row.fi-striped > td:has(.fi-ta-actions):last-child {
+    background-color: var(--fi-ta-bg-striped, var(--fi-ta-bg));
 }
 
 /* Shadow indicator - only shows when data-sticky-shadow is present */
