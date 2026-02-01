@@ -5,21 +5,7 @@
  * Only applies when [data-sticky-actions] attribute is present on the table
  */
 
-/* Propagate background through the entire chain */
-.fi-ta[data-sticky-actions] .fi-ta-ctn > div,
-.fi-ta[data-sticky-actions] table,
-.fi-ta[data-sticky-actions] tbody,
-.fi-ta[data-sticky-actions] thead,
-.fi-ta[data-sticky-actions] .fi-ta-row:not(.fi-striped) {
-    background: inherit;
-}
-
-/* Header row needs to propagate too */
-.fi-ta[data-sticky-actions] thead tr {
-    background: inherit;
-}
-
-/* Header cell for actions column */
+/* Header cell for actions column - inherits from thead tr */
 .fi-ta[data-sticky-actions] .fi-ta-actions-header-cell {
     position: sticky;
     right: 0;
@@ -27,7 +13,7 @@
     background: inherit;
 }
 
-/* Actions cell in table rows */
+/* Actions cell in table rows - inherits from tr */
 .fi-ta[data-sticky-actions] .fi-ta-row > td:has(.fi-ta-actions):last-child {
     position: sticky;
     right: 0;
