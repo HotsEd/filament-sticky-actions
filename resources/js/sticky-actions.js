@@ -106,32 +106,48 @@ function getBackgroundColor(element) {
     return null;
 }
 
-function parseColor(colorStr) {
+/**
+ * Convert any CSS color to RGB using a temporary canvas
+ */
+function colorToRgb(colorStr) {
     if (!colorStr) return null;
 
-    // Handle rgba/rgb format: rgb(r, g, b) or rgba(r, g, b, a)
-    let match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-    if (match) {
-        return {
-            r: parseInt(match[1]),
-            g: parseInt(match[2]),
-            b: parseInt(match[3]),
-            a: match[4] !== undefined ? parseFloat(match[4]) : 1
-        };
-    }
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
 
-    // Handle color(srgb r g b / a) format
-    match = colorStr.match(/color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\)/);
-    if (match) {
-        return {
-            r: Math.round(parseFloat(match[1]) * 255),
-            g: Math.round(parseFloat(match[2]) * 255),
-            b: Math.round(parseFloat(match[3]) * 255),
-            a: match[4] !== undefined ? parseFloat(match[4]) : 1
-        };
-    }
+    ctx.fillStyle = colorStr;
+    ctx.fillRect(0, 0, 1, 1);
 
-    return null;
+    const data = ctx.getImageData(0, 0, 1, 1).data;
+    return {
+        r: data[0],
+        g: data[1],
+        b: data[2],
+        a: data[3] / 255
+    };
+}
+
+/**
+ * Parse color string to get alpha value
+ */
+function getAlpha(colorStr) {
+    if (!colorStr) return 1;
+
+    // Check for rgba
+    let match = colorStr.match(/rgba?\([^)]+,\s*([\d.]+)\s*\)/);
+    if (match) return parseFloat(match[1]);
+
+    // Check for color(srgb ... / alpha)
+    match = colorStr.match(/\/\s*([\d.]+)\s*\)/);
+    if (match) return parseFloat(match[1]);
+
+    // Check for oklch with alpha
+    match = colorStr.match(/oklch\([^)]+\/\s*([\d.]+)\s*\)/);
+    if (match) return parseFloat(match[1]);
+
+    return 1;
 }
 
 function getStripedBackgroundColor(stripedRow, containerBg) {
@@ -142,20 +158,36 @@ function getStripedBackgroundColor(stripedRow, containerBg) {
         return containerBg;
     }
 
-    const stripedColor = parseColor(bg);
-    if (!stripedColor) return bg;
+    // Get alpha from the original color string
+    const alpha = getAlpha(bg);
 
-    // If fully opaque, return as-is
-    if (stripedColor.a >= 0.99) return bg;
+    // If fully opaque, convert and return
+    if (alpha >= 0.99) {
+        const rgb = colorToRgb(bg);
+        if (rgb) {
+            return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        }
+        return bg;
+    }
 
     // Blend with container background
-    const containerColor = parseColor(containerBg);
-    if (!containerColor) return bg;
+    const stripedRgb = colorToRgb(bg);
+    const containerRgb = colorToRgb(containerBg);
 
-    // Alpha blending
-    const blendedR = Math.round(stripedColor.r * stripedColor.a + containerColor.r * (1 - stripedColor.a));
-    const blendedG = Math.round(stripedColor.g * stripedColor.a + containerColor.g * (1 - stripedColor.a));
-    const blendedB = Math.round(stripedColor.b * stripedColor.a + containerColor.b * (1 - stripedColor.a));
+    if (!stripedRgb || !containerRgb) return bg;
+
+    // The canvas already does alpha blending with white, so we need to
+    // manually blend with the container color
+    // Since canvas uses white as backdrop, we need to reverse and re-blend
+
+    // Actually, for semi-transparent colors on canvas, it blends with transparent (black)
+    // So we need to do proper alpha blending ourselves
+
+    // Get the raw color without alpha from the blended result isn't reliable
+    // Let's just blend using the alpha we extracted
+    const blendedR = Math.round(stripedRgb.r * alpha + containerRgb.r * (1 - alpha));
+    const blendedG = Math.round(stripedRgb.g * alpha + containerRgb.g * (1 - alpha));
+    const blendedB = Math.round(stripedRgb.b * alpha + containerRgb.b * (1 - alpha));
 
     return `rgb(${blendedR}, ${blendedG}, ${blendedB})`;
 }
