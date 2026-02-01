@@ -37,8 +37,17 @@ public function table(Table $table): Table
 You can also conditionally enable it:
 
 ```php
-->stickyActions(condition: $this->hasManyColuumns)
+->stickyActions(condition: $this->hasManyColumns)
 ```
+
+## Features
+
+- **Sticky actions column**: Keeps the actions visible when scrolling horizontally
+- **Theme-aware**: Automatically detects and uses your theme's colors (works with any Filament theme)
+- **Dark mode support**: Colors update automatically when switching between light and dark modes
+- **Striped rows support**: Correctly handles alternating row colors
+- **Scroll shadow**: Shows a subtle shadow indicator when there's more content to scroll
+- **Zero configuration**: Just call `->stickyActions()` and it works
 
 ## How It Works
 
@@ -47,9 +56,9 @@ The plugin:
 1. Adds a `stickyActions()` macro to Filament's Table class
 2. When called, adds `data-sticky-actions` attribute to the table
 3. CSS makes the actions column sticky with `position: sticky; right: 0`
-4. Inherits background colors from your theme (no hardcoded colors)
-5. Adds a subtle shadow for visual separation
-6. Supports dark mode automatically
+4. JavaScript automatically detects background colors from your theme
+5. Blends semi-transparent striped row colors correctly
+6. Adds a shadow that disappears when scrolled to the end
 
 ## Requirements
 
